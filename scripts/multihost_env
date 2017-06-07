@@ -1,1 +1,1 @@
-export VAGRANT_VAGRANTFILE=vagrant_files/Vagrantfile_routers
+export VAGRANT_VAGRANTFILE=vagrant_files/Vagrantfile_multi
