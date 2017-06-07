@@ -1,0 +1,36 @@
+[logstash]
+
+[kafka]
+dev-logs-kafka-01   ansible_host=192.168.37.10
+
+[elasticsearch]
+
+[kibana]
+
+##################################
+#             VARS               #
+##################################
+[region:vars]
+region_name=develop
+ansible_ssh_user= vagrant
+ansible_ssh_port= 22
+ansible_connection= ssh
+ansible_ssh_private_key_file= '~/.vagrant.d/insecure_private_key'
+
+##################################
+##          childhood           ##
+##################################
+
+[region:children]
+backend
+database
+frontend
+    [backend:children]
+    logstash
+
+    [database:children]
+    kafka
+    elasticsearch
+
+    [frontend:children]
+    kibana

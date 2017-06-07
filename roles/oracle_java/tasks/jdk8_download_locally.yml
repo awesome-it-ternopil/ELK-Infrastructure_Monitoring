@@ -1,0 +1,60 @@
+---
+#
+- name: directory make archive_dir
+  file: path={{ archive_dir }} state=directory owner=root group=root mode=0755
+
+# Local
+- name: create local tmp ansible folder
+  become: no
+  local_action: >
+              file
+              path={{local_tmp}}
+              state=directory
+              mode="u+rwx,g+rwx,o+rwx"
+  when: use_local_tmp
+
+- name: create remote temp ansible folder
+  file: >
+        path={{ archive_dir }}/
+        state=directory
+        mode="u+rwx,g+rwx,o+rwx"
+  when: use_local_tmp
+
+- name: Debug "{{local_tmp}}/jdk-tarball-{{ jdk8.jdk_version }}"
+  debug: |
+        var="{{local_tmp}}/{{ jdk8.jdk_tarball_file }}"
+  tags:
+      - debug_local_tmp
+
+- name: get locally JDK 1.8 tarball (as RPM file)
+  become: no
+  local_action: >
+            get_url
+            url="{{ jdk8.jdk_tarball_url }}"
+            headers='Cookie:oraclelicense=accept-securebackup-cookie'
+            dest="{{local_tmp}}/{{ jdk8.jdk_tarball_file }}"
+            force=no
+#            command curl -L  -H  'Cookie:oraclelicense=accept-securebackup-cookie'  -o "{{local_tmp}}/{{ jdk8.jdk_tarball_file }}"  {{ jdk8.jdk_tarball_url }}
+  async: 345
+  poll: 15
+  when: java_version == 8 and  use_local_tmp
+# http://docs.ansible.com/ansible/playbooks_async.html
+
+- name: upload JDK 1.8 tarball (as RPM file)
+  become: yes
+  copy: |
+      src={{local_tmp}}/{{ jdk8.jdk_tarball_file }}
+      dest={{ archive_dir }}/{{ jdk8.jdk_tarball_file }}
+  when: use_local_tmp
+
+- name: Debug {{ archive_dir }}/{{ jdk8.jdk_tarball_file }}
+  debug: |
+        var={{ archive_dir }}/{{ jdk8.jdk_tarball_file }}
+  tags:
+      - debug_local_tmp
+
+- name: Yum install JDK Oracle rpm
+  become: yes
+  yum: name="{{ archive_dir }}/{{ jdk8.jdk_tarball_file }}" state=present
+
+...

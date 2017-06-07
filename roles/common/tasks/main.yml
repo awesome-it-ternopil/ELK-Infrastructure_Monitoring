@@ -1,0 +1,36 @@
+---
+# tasks file for common
+
+- name: Set hostname
+  hostname: name={{inventory_hostname}}
+
+- name: Add hostname to /etc/hosts
+  become: True
+  lineinfile: dest='/etc/hosts' line='127.0.0.1   {{inventory_hostname}}'
+
+- name: Install epel repository
+  yum:  name="epel-release" state=latest
+
+- name: Install packages
+  become: yes
+  yum:  name={{ item }} state=latest 
+  with_items: 
+      - git
+      - libselinux-python
+      - mc
+      - htop
+      - vim
+      - nano
+      - screen
+      - python-setuptools
+      - policycoreutils-python
+      - python-pip
+  ignore_errors: yes
+
+- name: check if swap exitst
+  stat: path={{ swap_file_path }}
+  register: swap_exitst
+
+- include: swap.yml
+  when: swap_exitst.stat.exists == False and make_swap
+

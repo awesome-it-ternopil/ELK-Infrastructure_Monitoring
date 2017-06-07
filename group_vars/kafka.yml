@@ -1,0 +1,26 @@
+---
+kafka:
+  user: "{{ansible_user}}"
+  dirs:
+    kafka_log: "/opt/cluster/log/kafka"
+    zookeeper_home: "/opt/cluster/zookeeper"
+    kafka_home: "/opt/cluster/kafka"
+    root: "/opt/cluster"
+  broker:
+    port: 9092
+    id: 1
+  zookeeper:
+    port: 2181
+
+env_spec:
+  develop:
+    kafka_hostname: "{{ansible_host}}"
+  hive:
+    kafka_hostname: "dev-kafka.hive"
+  stage:
+    kafka_hostname: "{{ansible_host}}"
+  production:
+    kafka_hostname: "{{ansible_host}}"
+
+kafka_hostname: "{{env_spec[region_name]['kafka_hostname']}}"
+...

@@ -1,0 +1,40 @@
+---
+- name: Getting Uname -r
+  command: uname -r
+  register: uname_result
+
+- name: Installing docker Prerequisites
+  become: True
+  apt: >
+        name={{item}}
+        state=latest
+        update_cache=yes
+  with_items:
+    - "apt-transport-https"
+    - "ca-certificates"
+    - "linux-image-extra-{{uname_result.stdout|default('')}}"
+    - "linux-image-extra-virtual"
+    - "python-pip"
+
+- name: Adding GPG keys
+  become: True
+  apt_key: >
+        keyserver=hkp://ha.pool.sks-keyservers.net:80
+        id=58118E89F3A912897C070ADBF76221572C52609D
+
+- name: Adding repo
+  become: True
+  lineinfile: >
+        dest='/etc/apt/sources.list.d/docker.list'
+        line='deb https://apt.dockerproject.org/repo ubuntu-{{ansible_lsb.codename}} main'
+        create=yes
+
+- name: Installing Docker engine
+  become: True
+  apt: >
+        name=docker-engine
+        state=latest
+        update_cache=yes
+
+
+...

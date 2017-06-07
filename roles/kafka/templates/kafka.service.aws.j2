@@ -1,0 +1,32 @@
+#!/bin/bash
+# Application start/stop script
+#
+# chkconfig: 2345 92 01
+# description:	kafka
+
+# Source function library.
+. /etc/init.d/functions
+
+start() {
+    mkdir -p {{kafka.dirs.kafka_log}}
+    {{kafka.dirs.kafka_home}}/bin/kafka-server-start.sh {{kafka.dirs.kafka_home}}/config/server.properties &
+	return 0
+}
+
+stop() {
+    {{kafka.dirs.kafka_home}}/bin/kafka-server-stop.sh
+	return 0
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  *)
+	echo $"Usage: $0 {start|stop}"
+	exit 2
+esac

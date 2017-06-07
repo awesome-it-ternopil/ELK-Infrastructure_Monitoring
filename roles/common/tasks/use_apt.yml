@@ -1,0 +1,32 @@
+---
+# tasks file for common
+
+
+
+- name: Update all packages
+  become: yes
+  apt: upgrade=dist
+
+- name: Install packages
+  become: yes
+  apt:  name={{ item }} state=latest
+  with_items: 
+      - git
+#      - libselinux-python
+      - mc
+      - htop
+      - vim
+#  ignore_errors: yes
+
+
+- name: check if swap exitst
+  stat: path={{ swap_file_path }}
+  register: swap_exitst
+
+
+#https://raymii.org/s/tutorials/Ansible_-_Only_if_a_file_exists_or_does_not_exist.html  
+- include: swap.yml
+  when: swap_exitst.stat.exists == False and make_swap
+  
+
+

@@ -1,0 +1,104 @@
+#
+# install Oracle JDK 1.x on CentOS
+#
+# Adapted from: http://blog.trifork.com/2013/04/02/ansible-example-playbook-to-setup-jenkins-slave/
+# See also: http://java.dzone.com/articles/installing-oracle-java6-ubuntu
+#
+
+- name: uninstall messy packages to avoid blocking conditions
+  script: ../files/uninstall-messy-jdk-packages.sh
+
+- name: delete messy .rpm files to avoid blocking conditions
+  script: ../files/delete-messy-rpm-files.sh  {{ jdk_download_path }}
+
+- name: create remote temp ansible folder
+  file: >
+        path={{ archive_dir }}
+        state=directory
+        owner={{ ansible_user }}
+        group={{ ansible_user }}
+        mode="u+rwx,g+rwx,o+rwx"
+#  when: use_local_tmp
+  tags:
+      - "create_remote_temp_ansible_folder"
+
+
+- name: get JDK 1.7 tarball (as RPM file)
+  command: curl -L  -H 'Cookie:oraclelicense=accept-securebackup-cookie'  -o {{ jdk7.jdk_tarball_file }}  {{ jdk7.jdk_tarball_url }}
+  args:
+    creates: "{{ jdk_download_path }}/jdk-tarball-{{ jdk7.jdk_version }}"
+    chdir:   "{{ jdk_download_path }}"
+  when: java_version == 7
+
+- name: Include local download of JDK rpm
+  include: jdk8_download_locally.yml
+  when: java_version == 8 and use_local_tmp
+
+- name: Debug "{{ jdk8.jdk_tarball_url }}"
+  debug: |
+        var=local_tmp
+  tags:
+      - debug_jdk_8
+      - debug
+
+- name: Debug "{{ jdk8.jdk_tarball_url }}"
+  debug: |
+        msg="{{local_tmp}}/{{ jdk8.jdk_tarball_file }}"
+  tags:
+      - debug_jdk_8
+
+- name: Remote get JDK 1.8 tarball (as RPM file)
+  become: yes
+  get_url: >
+            url="{{ jdk8.jdk_tarball_url }}"
+            headers='Cookie:oraclelicense=accept-securebackup-cookie'
+            dest="{{ archive_dir }}/{{ jdk8.jdk_tarball_file }}"
+            force=yes
+            owner={{ ansible_user }}
+            group={{ ansible_user }}
+            mode=777
+#  command: curl -L  -H 'Cookie:oraclelicense=accept-securebackup-cookie'  -o "{{ jdk_download_path }}/{{ jdk8.jdk_tarball_file }}"  {{ jdk8.jdk_tarball_url }}
+#  async: 745
+#  poll: 15
+  when: java_version == 8 and not use_local_tmp
+# http://docs.ansible.com/ansible/playbooks_async.html
+  tags:
+      - debug_jdk_download
+
+
+
+- name: install JDK 1.7
+  command: rpm --force -Uvh  {{ jdk7.jdk_tarball_file }}
+  args:
+    creates: "{{ jdk_download_path }}/jdk-{{ jdk7.jdk_version }}"
+    chdir:   "{{ jdk_download_path }}"
+  when: java_version == 7
+
+- name: Debug archive_dir/jdk8.jdk_tarball_file
+  debug: |
+        msg="{{ archive_dir }}/{{ jdk8.jdk_tarball_file }}"
+  tags:
+      - debug_jdk_8
+
+- name: Yum install JDK Oracle rpm
+  become: yes
+  yum: name="{{ archive_dir }}/{{ jdk8.jdk_tarball_file }}" state=present
+
+#- name: Yum install JDK Oracle  1.8
+#  become: yes
+#  yum: |
+#      name= "{{ jdk_download_path }}/{{ jdk8.jdk_tarball_file }}"
+#      state=present
+#  when: java_version == 8 and not use_local_tmp
+#  tags:
+#      - install_jdk8
+
+
+
+
+- name: clean up - uninstall messy packages
+  script: ../files/uninstall-messy-jdk-packages.sh
+
+- name: clean up - delete messy .rpm files
+  become: yes
+  script: ../files/delete-messy-rpm-files.sh  {{ jdk_download_path }}

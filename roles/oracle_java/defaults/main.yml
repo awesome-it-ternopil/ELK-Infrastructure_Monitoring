@@ -1,0 +1,32 @@
+---
+
+#
+# variables needed to be defined in user's playbook
+#
+
+
+
+#
+# user-configurable defaults
+#
+
+java_version: 8
+
+
+jdk7:
+    jdk_version:      1.7.0_80
+    jdk_tarball_file: jdk-7u80-linux-x64.rpm
+    jdk_tarball_url:  http://download.oracle.com/otn-pub/java/jdk/7u80-b15/jdk-7u80-linux-x64.rpm
+
+jdk8:
+    jdk_version:      1.8.0_131
+    jdk_tarball_file: jdk-8u131-linux-x64.rpm
+    jdk_tarball_url:  http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.rpm
+
+
+jdk_download_path: /tmp/ansible
+
+use_local_tmp: false
+local_tmp: "/tmp/ansible"
+archive_dir:  "{{jdk_download_path}}"
+...

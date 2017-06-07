@@ -1,0 +1,6 @@
+---
+# defaults file for common
+swap_file_path: /swapfile
+swap_file_size: 2097152
+swap_exitst: False
+make_swap: False # by default no swap

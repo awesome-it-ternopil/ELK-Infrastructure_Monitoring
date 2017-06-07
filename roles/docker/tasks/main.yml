@@ -1,0 +1,25 @@
+---
+- name: Include Debian config
+  include: debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Include RedHat config
+  include: redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Installing docker-py
+  become: True
+  pip: >
+        name=docker-py
+        state=latest
+
+- name: Create docker group
+  become: True
+  command: usermod -aG docker {{ansible_ssh_user}}
+
+- name: Starting engine
+  become: True
+  service: >
+        name=docker
+        state=started
+...

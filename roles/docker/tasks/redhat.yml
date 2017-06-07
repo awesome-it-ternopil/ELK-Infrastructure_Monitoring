@@ -1,0 +1,14 @@
+---
+- name: Add docker repo file
+  become: True
+  copy: >
+        src=docker.repo
+        dest=/etc/yum.repos.d/
+
+- name: Installing docker-engine
+  become: True
+  yum: >
+        name=docker-engine
+        update_cache=yes
+        state=latest
+...

@@ -1,0 +1,4 @@
+---
+- include: db_setup.yml
+- include: app_setup.yml
+...

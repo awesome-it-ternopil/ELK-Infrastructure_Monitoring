@@ -1,0 +1,112 @@
+---
+- name: Creates /cluster
+  become: True
+  file: >
+        path={{item}}
+        state=directory
+        owner={{kafka.user}}
+        group={{kafka.user}}
+        mode="u+rwx,g+rwx"
+        recurse=yes
+  with_items:
+    - "{{kafka.dirs.zookeeper_home}}"
+
+- name: unarchive...
+  unarchive: >
+        src={{kafka_tgz_url}}
+        dest={{kafka.dirs.root}}
+        creates={{kafka.dirs.root}}/{{kafka_name}}
+        remote_src=yes
+
+- name: link...
+  file: >
+        src={{kafka.dirs.root}}/{{kafka_name}}
+        dest={{kafka.dirs.kafka_home}}
+        state=link
+
+- name: include kafka in the default path
+  become: True
+  template: >
+        src='etc/profile.d/kafka.sh.j2'
+        dest='/etc/profile.d/kafka.sh'
+        mode=644
+        owner=root
+        group=root
+
+- name: install {{kafka.dirs.kafka_home}}/config/server.properties
+  template: >
+        src={{item}}.j2
+        dest={{kafka.dirs.kafka_home}}/config/{{item}}
+        owner=root
+        group=root
+        mode=0644
+  with_items:
+    - server.properties
+    - zookeeper.properties
+  notify: restart_kafka
+
+#- name: installing producer.properties
+#  template: >
+#    src=producer.properties.j2
+#    dest={{kafka.dirs.kafka_home}}/config/producer_dc{{item}}.properties
+#    owner={{kafka['user']}}
+#    group={{kafka['user']}}
+#    mode=0644
+#  with_items:
+#    "{{dc_info[region_name]['closest']}}"
+#  notify: restart_mirrormaker
+#
+#- name: installing consumer.properties
+#  template: >
+#    src=consumer.properties.j2
+#    dest={{kafka.dirs.kafka_home}}/config/consumer_dc{{item}}.properties
+#    owner={{kafka['user']}}
+#    group={{kafka['user']}}
+#    mode=0644
+#  with_items:
+#    "{{dc_info[region_name]['closest']}}"
+#  notify: restart_mirrormaker
+
+- name: install kafka.service...
+  register: kafka_service_installed
+  become: True
+  template: >-
+    src=kafka.service.j2
+    dest=/etc/systemd/system/kafka.service
+    owner=root
+    group=root
+    mode=0644
+  notify: restart_kafka
+
+- name: install related kafka service
+  register: kafka_other_service_installed
+  become: True
+  template: >
+    src={{item}}.j2
+    dest=/etc/init.d/{{item}}
+    owner=root
+    group=root
+    mode=0755
+  with_items:
+    - zookeeper
+
+- name: chkconfig --add {{app.name}}
+  become: yes
+  shell: chkconfig --add {{item}}
+  with_items:
+    - zookeeper
+
+- name: systemctl daemon-reload
+  when: kafka_service_installed.changed
+  command: systemctl daemon-reload
+
+- name: launch zookeeper...
+  service: name=zookeeper enabled=yes state=started
+
+- name: launch kafka...
+  service: name=kafka.service enabled=yes state=started
+
+#- name: launch mirror...
+#  service: name=mirrormaker enabled=yes state=started
+#  when: dc_info[region_name]['dc_number']!=dc_info[region_name]['closest'][0]
+...

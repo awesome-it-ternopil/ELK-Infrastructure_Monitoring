@@ -1,0 +1,5 @@
+---
+# handlers file for common
+- name: restart sshd
+  become: yes
+  command: /etc/init.d/sshd restart

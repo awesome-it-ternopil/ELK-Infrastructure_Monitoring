@@ -1,0 +1,13 @@
+---
+- name: restart_mirrormaker
+  become: yes
+  service: name=mirrormaker
+           state=restarted
+
+- name: restart_kafka
+  become: yes
+  service: name=kafka
+           state=restarted
+
+
+...

@@ -1,0 +1,69 @@
+---
+# file: tasks/use-rpm.yml
+# Configure Oracle JDK common settings.
+#
+
+- name: precondition - java_version
+  fail: msg="ERROR - required variable 'java_version' missing."
+  when: java_version is not defined
+
+- name: remove openJdk
+  yum:  name="*openjdk"
+        state=absent
+
+### for dev inventory
+- name: try install from /tmp/jdk-8u45-linux-x64.rpm
+  command: "yum localinstall /tmp/jdk-8*"
+  ignore_errors: yes
+
+
+- name: check if Oracle JDK 1.7 is installed?
+  script: ../files/check-rpm-installed.sh  "{{ jdk7.jdk_version }}"
+  when: java_version == 7
+  register: jdk7_info
+
+- name: check if Oracle JDK 1.8 is installed?
+  script: ../files/check-rpm-installed.sh  "{{ jdk8.jdk_version }}"
+  when: java_version == 8
+  register: jdk8_info
+
+#- debug: msg="{{ jdk7_info }}"
+#- debug: msg="{{ jdk8_info }}"
+
+- name: install-jdk-rpm.yml 7
+  include: install-jdk-rpm.yml
+  when: java_version == 7  and  (jdk7_info.stdout|from_json).not_found
+
+- name: install with Java 8 RPM
+  include: install-jdk-rpm.yml
+#  when: java_version == 8  and  (jdk8_info.stdout|from_json).not_found
+  when: java_version == 8
+
+
+- name: update /etc/alternatives settings for Java 7
+  script: ../files/update-alternatives.sh  "{{ jdk7.jdk_version }}"
+  when: java_version == 7
+
+- name: debug
+  debug: msg="{{ jdk_download_path }}"
+  tags:
+    - debug
+
+- name: copy script
+  copy: src=../files/update-alternatives.sh
+        dest={{ jdk_download_path }}/
+        owner={{ ansible_user }}
+        group={{ ansible_user }}
+        mode=777
+  when: java_version == 8
+  tags:
+    - debug
+
+- name: update /etc/alternatives settings for Java 8
+  command: "{{ jdk_download_path }}/update-alternatives.sh  {{ jdk8.jdk_version }}"
+  ignore_errors: yes
+  when: java_version == 8
+
+
+
+
