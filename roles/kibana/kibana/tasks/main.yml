@@ -1,0 +1,26 @@
+---
+- name: Copy  configuration.
+  become: True
+  template:
+    src: elasticsearch.yml.j2
+    dest: "{{ elk.dirs.kibana.config }}"
+    owner: {{elk.user}}
+    group: {{elk.group}}
+    mode: 0644
+
+- name: Starting Elasticsearch
+  become: True
+  docker_container:
+    name: "{{docker.container_name}}"
+    image: "{{kibana.image_name}}"
+    state: "started"
+    restart_policy: 'always'
+    recreate: yes
+    volumes:
+        - "{{elk.dirs.data}}{{elk.dirs.kibana.config}}/:/usr/share/kibana/config/"
+    networks:
+      - name: '{{docker.network_name}}'
+        ipv4_address: '{{docker.ips.kibana}}'
+    published_ports:
+      - '{{kibana.port1}}:{{kibana.port1}}'
+ ...

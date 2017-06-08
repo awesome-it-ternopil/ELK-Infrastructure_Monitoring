@@ -4,7 +4,7 @@
 dev-logs-kafka-01   ansible_host=192.168.37.10
 
 [elasticsearch]
-
+dev-logs-elk-01   ansible_host=192.168.37.20
 [kibana]
 
 ##################################

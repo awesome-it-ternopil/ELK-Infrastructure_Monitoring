@@ -1,0 +1,7 @@
+---
+logstash:
+#  version: '5.4.1'
+  image_name: "logstash/"
+  port1: 5000
+  root_user: '???'
+...

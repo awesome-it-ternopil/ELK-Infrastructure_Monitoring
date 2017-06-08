@@ -1,0 +1,9 @@
+---
+- hosts: elasticsearch
+  become: True
+  roles:
+#    - common
+#    - docker
+    - docker_config
+    - elasticsearch
+...

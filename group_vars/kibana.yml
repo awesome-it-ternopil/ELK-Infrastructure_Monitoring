@@ -1,0 +1,8 @@
+---
+kibana:
+#  version: '5.4.1'
+  image_name: "kibana/"
+  port1: 5601
+#  port2: 9300
+  root_user: '???'
+...

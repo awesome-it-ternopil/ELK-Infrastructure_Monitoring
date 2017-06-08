@@ -1,0 +1,47 @@
+---
+- name: Copy logstash.yml.
+  become: True
+  template:
+    src: logstash.yml.j2
+    dest: "{{elk.dirs.logstash.config}}"
+    owner: {{elk.user}}
+    group: {{elk.group}}
+    mode: 0644
+
+- name: Copy logstash.conf.
+  become: True
+  template:
+    src: logstash.conf.j2
+    dest: "{{ elk.dirs.logstash.pipeline }}"
+    owner: {{elk.user}}
+    group: {{elk.group}}
+    mode: 0644
+
+- name: Copy ssh-map.json.
+  become: True
+  template:
+    src: ssh-map.json.j2
+    dest: "{{ elk.dirs.logstash.parent }}"
+    owner: {{elk.user}}
+    group: {{elk.group}}
+    mode: 0644
+
+- name: Starting Logstash
+  become: True
+  docker_container:
+    name: "{{logstash.container_name}}"
+    image: "{{logstash.image_name}}:{{logstash.version}}"
+    state: "started"
+    restart_policy: 'always'
+    recreate: yes
+    volumes:
+        - "{{elk.dirs.data}}{{elk.dirs.config}}:/usr/share/logstash/config/"
+        - "{{elk.dirs.data}}{{elk.dirs.pipeline}}:/usr/share/logstash/pipeline/"
+        - "{{elk.dirs.data}}{{elk.dirs.parent}}:/etc/ssh-map.json"
+    env:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - name: '{{docker.network_name}}'
+        ipv4_address: '{{docker.ips.logstash}}'
+    published_ports:
+      - '{{logstash.port1}}:{{logstash.port1}}'

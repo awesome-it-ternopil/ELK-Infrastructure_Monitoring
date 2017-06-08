@@ -1,2 +1,17 @@
 ---
+elk:
+  user: 'centos'
+  group: 'centos'
+  dirs:
+    data: '/opt/cluster'
+    elastic:
+      parent: '/elasticsearch'
+      config: '{{elastic.dirs.parent}}/config'
+    kibana:
+      parent: '/kibana'
+      config: '{{kibana.dirs.parent}}/config'
+    logstash:
+      parent: '/logstash'
+      config: '{{logstash.dirs.parent}}/config'
+      pipeline: '{{logstash.dirs.parent}}/pipeline'
 ...

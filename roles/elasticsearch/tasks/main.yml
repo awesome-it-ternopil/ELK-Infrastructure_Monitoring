@@ -1,0 +1,67 @@
+---
+- name: Copy elasticsearch.yml.
+  become: True
+  template:
+    src: elasticsearch.yml.j2
+    dest: "{{ elk.dirs.elastic.config }}"
+    owner: "{{elk.user}}"
+    group: "{{elk.group}}"
+    mode: 0644
+
+- name: Starting Elasticsearch
+  become: True
+  docker_container:
+    name: "{{docker.container_name}}"
+    image: "{{elastic.image_name}}"
+    state: "started"
+    restart_policy: 'always'
+    recreate: yes
+    volumes:
+        - "{{elk.dirs.data}}{{elk.dirs.config}}:/usr/share/elasticsearch/config/"
+    env:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - name: '{{docker.network_name}}'
+        ipv4_address: '{{docker.ips.elastic}}'
+    published_ports:
+      - '{{elastic.port1}}:{{elastic.port1}}'
+      - '{{elastic.port2}}:{{elastic.port2}}'
+#    image: "{{elastic.image_name}}:{{elastic.version}}"
+#    tags:
+#      - pg_config
+#  when: "db_platform[region_name] == 'docker'"
+
+#- name: Start a container
+#  docker_container:
+#    name: elasticsearch
+#    image: elasticsearch/
+#    state: started
+#    ports:
+#     - "9200:9200"
+#     - "9300:9300"
+#    volumes:
+#    env:
+#         ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+#    networks: # List of networks the container belongs to.
+#          - name: elk
+#            ipv4_address: "172.1.1.100"
+#           - 6379????
+#     exposed_ports:
+#            aliases:
+#              - sleepyzz
+#            links:  (List of name aliases for linked containers in the format container_name:alias)
+#              - db_test:db
+#            log_driver: syslog
+#                log_options:
+#                  syslog-address: tcp://my-syslog-server:514
+#                  syslog-facility: daemon
+#                  # NOTE: in Docker 1.13+ the "syslog-tag" option was renamed to "tag" for
+#                  # older docker installs, use "syslog-tag" instead
+#                  tag: myservice
+
+
+#    restart: yes
+#    links:
+#     - "myredis:aliasedredis"
+#    devices:
+#     - "/dev/sda:/dev/xvda:rwm"

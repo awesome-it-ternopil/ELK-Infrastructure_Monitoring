@@ -1,0 +1,22 @@
+---
+ - name: Creating directories
+    become: True
+    file: >
+          path={{elk.dirs[item]}}/
+          state=directory
+          owner={{elk.user}}
+          group={{elk.group}}
+          mode="u+rwx,g+rwx"
+          recurse=yes
+    with_items: '{{app.dirs}}'
+
+ -  name: Create a network
+    become: True
+    docker_network:
+      name: '{{docker.network_name}}'
+      ipam_options:
+        subnet: '{{docker.ips.subnet}}'
+        gateway: '{{docker.ips.gateway}}'
+    tags:
+      - pg_config
+...
