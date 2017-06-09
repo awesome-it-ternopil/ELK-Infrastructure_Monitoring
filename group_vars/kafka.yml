@@ -11,6 +11,7 @@ kafka:
     id: 1
   zookeeper:
     port: 2181
+  num_partitions: 100
 
 env_spec:
   develop:
