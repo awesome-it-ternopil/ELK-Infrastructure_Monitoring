@@ -4,23 +4,39 @@ import os
 import time
 import json
 import socket
+import yaml
 
 kafka_config = {'broker_url': '192.168.37.10:9092', 'topic': 'test_log'}
-log_names = ['systema.log', 'test.log', '/var/log/syslog', '/var/log/dmesg']
+log_names = ['systema.log', 'test.log']
 start_seek = 0
+config_path = 'config.yaml'
 
 
 class ConfiguratorActor(object):
-    def __init__(self):
-        pass
+    default_params = {'kafka': {'topic': 'test_log', 'broker_url': '192.168.37.10:9092'}, 'log': {'paths': []},
+                      'system': {'sleep_time': 1, 'pid_file': "PIDFILE", 'position_filename': 'logs_positions.tmp'}}
+
+    def __init__(self, config_file='config.yaml'):
+        self.update_config(self.default_params)
+        self.config_file = config_file
+        self.update_config(self.read_config())
+
+    def read_config(self):
+        conf = file(self.config_file)
+        result = yaml.load(conf)
+        return result
+
+    def update_config(self, input_dict):
+        for x in input_dict:
+            setattr(self, x, input_dict[x])
 
 
 class LogImporter(object):
-    def __init__(self, log_file_names=[]):
+    def __init__(self, log_file_names=[], positions_filename="logs_positions.tmp"):
         self.log_files_names = log_file_names
         self.descriptors = {}
         self.update_descriptors()
-        self.positions_filename = "logs_positions.tmp"
+        self.positions_filename = positions_filename
         if os.path.exists(os.path.expanduser(self.positions_filename)):
             self.positions_file = file(self.positions_filename, 'r+')
             self.update_read_positions(self.read_position_file())
@@ -82,8 +98,9 @@ class KafkaActor(object):
         self.kafka_prod.send(topic, message, key=key, partition=int(partition))
 
 
-input_logs = LogImporter(log_names)
-kaf = KafkaActor(**kafka_config)
+conf = ConfiguratorActor()
+input_logs = LogImporter(conf.log['paths'], positions_filename=conf.system['position_filename'])
+kaf = KafkaActor(**conf.kafka)
 play = True
 
 try:
@@ -99,7 +116,7 @@ try:
                 print "[DEBUG] Setting partition %s" % input_logs.log_files_names.index(file_name)
                 kaf.kafka_config['partition'] = input_logs.log_files_names.index(file_name)
                 map(kaf.write, read_result[file_name])
-        time.sleep(1)
+        time.sleep(conf.system['sleep_time'])
 except KeyboardInterrupt:
     print json.dumps(input_logs.get_read_positions())
 finally:
