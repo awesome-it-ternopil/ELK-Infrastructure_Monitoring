@@ -7,4 +7,11 @@ elastic:
   port1: 9200
   port2: 9300
   root_user: '???'
+
+docker:
+  network_name: 'elk'
+  ips:
+    subnet: '172.18.1.0/24'
+    gateway: '172.18.1.254'
+    ip: '172.18.1.10'
 ...

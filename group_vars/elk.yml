@@ -2,14 +2,6 @@
 elk:
   user: "{{ansible_ssh_user}}"
   group: "{{ansible_ssh_user}}"
-docker:
-  network_name: 'elk'
-  ips:
-    subnet: '172.18.1.0/24'
-    gateway: '172.18.1.254'
-    elastic: '172.18.1.10'
-    logstash: '172.18.1.20'
-    kibana: '172.18.1.30'
 dirs:
   data: '/opt/cluster'
   elastic:
