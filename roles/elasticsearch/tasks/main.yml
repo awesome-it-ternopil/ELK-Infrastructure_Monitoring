@@ -3,7 +3,7 @@
   become: True
   template:
     src: elasticsearch.yml.j2
-    dest: "{{ elk.dirs.elastic.config }}"
+    dest: "{{ dirs.elastic.config }}/elasticsearch.yml"
     owner: "{{elk.user}}"
     group: "{{elk.group}}"
     mode: 0644
@@ -11,13 +11,13 @@
 - name: Starting Elasticsearch
   become: True
   docker_container:
-    name: "{{docker.container_name}}"
+    name: "{{elastic.container_name}}"
     image: "{{elastic.image_name}}"
     state: "started"
     restart_policy: 'always'
     recreate: yes
     volumes:
-        - "{{elk.dirs.data}}{{elk.dirs.config}}:/usr/share/elasticsearch/config/"
+        - "{{dirs.elastic.config}}/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
     env:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
@@ -26,6 +26,7 @@
     published_ports:
       - '{{elastic.port1}}:{{elastic.port1}}'
       - '{{elastic.port2}}:{{elastic.port2}}'
+
 #    image: "{{elastic.image_name}}:{{elastic.version}}"
 #    tags:
 #      - pg_config

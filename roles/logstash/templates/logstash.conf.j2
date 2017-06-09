@@ -23,7 +23,8 @@ filter {
 output {
    if "ssh_brute_force_attack" in [tags] {
          elasticsearch {
-                hosts => "elasticsearch:9200"
+                hosts => "{{docker.ips.elastic}}:9200"
+#                hosts => "elasticsearch:9200"
                 #hosts => ["x.x.x.x:9200"]
                 index => "logstash-%{+YYYY.MM.dd}"
                 manage_template => true

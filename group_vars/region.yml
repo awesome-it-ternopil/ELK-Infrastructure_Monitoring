@@ -1,17 +1,25 @@
 ---
 elk:
-  user: 'centos'
-  group: 'centos'
-  dirs:
-    data: '/opt/cluster'
-    elastic:
-      parent: '/elasticsearch'
-      config: '{{elastic.dirs.parent}}/config'
-    kibana:
-      parent: '/kibana'
-      config: '{{kibana.dirs.parent}}/config'
-    logstash:
-      parent: '/logstash'
-      config: '{{logstash.dirs.parent}}/config'
-      pipeline: '{{logstash.dirs.parent}}/pipeline'
+  user: "{{ansible_ssh_user}}"
+  group: "{{ansible_ssh_user}}"
+docker:
+  network_name: 'elk'
+  ips:
+    subnet: '172.18.1.0/24'
+    gateway: '172.18.1.254'
+    elastic: '172.18.1.10'
+    logstash: '172.18.1.20'
+    kibana: '172.18.1.30'
+dirs:
+  data: '/opt/cluster'
+  elastic:
+    parent: '/opt/cluster/elasticsearch'
+    config: '/opt/cluster/elasticsearch/config'
+  kibana:
+    parent: '/opt/cluster/kibana'
+    config: '/opt/cluster/kibana/config'
+  logstash:
+    parent: '/opt/cluster/logstash'
+    config: '/opt/cluster/logstash/config'
+    pipeline: '/opt/cluster/logstash/pipeline'
 ...

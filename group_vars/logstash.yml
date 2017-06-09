@@ -1,7 +1,8 @@
 ---
 logstash:
+  container_name: 'logstash'
 #  version: '5.4.1'
-  image_name: "logstash/"
+  image_name: "docker.elastic.co/logstash/logstash:5.4.1"
   port1: 5000
   root_user: '???'
 ...

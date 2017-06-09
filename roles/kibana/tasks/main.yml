@@ -1,0 +1,36 @@
+---
+- name: Copy  configuration.
+  become: True
+  template:
+    src: 'kibana.yml.j2'
+    dest: "{{ dirs.kibana.config }}/kibana.yml"
+    owner: "{{elk.user}}"
+    group: "{{elk.group}}"
+    mode: 0644
+
+- name: Starting kibana
+  become: True
+  docker_container:
+    name: "{{kibana.container_name}}"
+    image: "{{kibana.image_name}}"
+    state: 'started'
+    restart_policy: 'always'
+    recreate: yes
+    volumes:
+        - "{{dirs.kibana.config}}:/usr/share/kibana/config"
+    networks:
+      - name: "{{docker.network_name}}"
+        ipv4_address: "{{docker.ips.kibana}}"
+    published_ports:
+      - "{{kibana.port1}}:{{kibana.port1}}"
+
+
+#    volumes:
+#        - "{{dirs.kibana.config}}/:/usr/share/kibana/config/"
+#    networks:
+#      - name: "{{docker.network_name}}"
+#        ipv4_address: "{{docker.ips.kibana}}"
+#    published_ports:
+#      - "{{kibana.port1}}:{{kibana.port1}}"
+#        name: "{{kibana.container_name}}"
+#    image: "{{kibana.image_name}}"

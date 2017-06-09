@@ -1,11 +1,2 @@
 ---
-
-docker:
-  container_name: 'elastic'
-  network_name: 'elk'
-  ips:
-    subnet: '172.11.1.0/24'
-    gateway: '172.11.1.254'
-    elastic: '172.11.1.10'
-
 ...

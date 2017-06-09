@@ -1,4 +1,5 @@
 [logstash]
+dev-logs-elk-01   ansible_host=192.168.37.20
 
 [kafka]
 dev-logs-kafka-01   ansible_host=192.168.37.10
@@ -6,7 +7,8 @@ dev-logs-kafka-01   ansible_host=192.168.37.10
 [elasticsearch]
 dev-logs-elk-01   ansible_host=192.168.37.20
 [kibana]
-
+dev-logs-elk-01   ansible_host=192.168.37.20
+#[elk]
 ##################################
 #             VARS               #
 ##################################
@@ -25,6 +27,8 @@ ansible_ssh_private_key_file= '~/.vagrant.d/insecure_private_key'
 backend
 database
 frontend
+
+
     [backend:children]
     logstash
 
@@ -34,3 +38,4 @@ frontend
 
     [frontend:children]
     kibana
+

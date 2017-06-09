@@ -6,4 +6,14 @@
 #    - docker
     - docker_config
     - elasticsearch
+
+- hosts: logstash
+  become: True
+  roles:
+    - logstash
+
+- hosts: kibana
+  become: True
+  roles:
+    - kibana
 ...

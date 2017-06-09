@@ -1,8 +1,9 @@
 ---
 elastic:
+  container_name: 'elastic'
   version: '5.4.1'
-  image_name: "elasticsearch/"
-#  image_name: "docker.elastic.co/elasticsearch/elasticsearch"
+#  image_name: "elastic:5.4.1"
+  image_name: "docker.elastic.co/elasticsearch/elasticsearch:5.4.1"
   port1: 9200
   port2: 9300
   root_user: '???'
