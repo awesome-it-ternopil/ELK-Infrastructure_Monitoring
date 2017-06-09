@@ -92,7 +92,7 @@ try:
         read_result = input_logs.read_files()
         for file_name in read_result:
             if len(read_result[file_name]) > 0:
-                print "[DEBUG] Changing topic to %s" % socket.gethostname()
+                print "[DEBUG] Changing topic to %s" % socket.gethostname().lower()
                 kaf.kafka_config['topic'] = socket.gethostname()
                 print "[DEBUG] Adding key %s" % file_name
                 kaf.kafka_config['key'] = file_name
