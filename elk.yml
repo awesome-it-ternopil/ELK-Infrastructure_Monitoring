@@ -4,16 +4,19 @@
   roles:
 #    - common
 #    - docker
-    - docker_config
-    - elasticsearch
+    - elk
 
 - hosts: logstash
   become: True
   roles:
-    - logstash
+#    - common
+#    - docker
+    - elk
 
 - hosts: kibana
   become: True
   roles:
-    - kibana
+#    - common
+#    - docker
+    - elk
 ...

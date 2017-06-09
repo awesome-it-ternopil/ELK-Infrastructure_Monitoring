@@ -2,16 +2,4 @@
 elk:
   user: "{{ansible_ssh_user}}"
   group: "{{ansible_ssh_user}}"
-dirs:
-  data: '/opt/cluster'
-  elastic:
-    parent: '/opt/cluster/elasticsearch'
-    config: '/opt/cluster/elasticsearch/config'
-  kibana:
-    parent: '/opt/cluster/kibana'
-    config: '/opt/cluster/kibana/config'
-  logstash:
-    parent: '/opt/cluster/logstash'
-    config: '/opt/cluster/logstash/config'
-    pipeline: '/opt/cluster/logstash/pipeline'
 ...
