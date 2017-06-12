@@ -2,14 +2,14 @@
 - hosts: elasticsearch
   become: True
   roles:
-#    - common
-#    - docker
+    - common
+    - docker
     - elk
 
 - hosts: logstash
   become: True
   roles:
-#    - common
+#    - cogitmmon
 #    - docker
     - elk
 

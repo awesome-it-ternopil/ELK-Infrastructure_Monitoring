@@ -9,11 +9,11 @@
       mode="u+rwx,g+rwx"
       recurse=yes
   with_items:
-      - "{{dirs.data}}"
-      - "{{dirs.elastic.config}}"
-      - "{{dirs.kibana.config}}"
-      - "{{dirs.logstash.config}}"
-      - "{{dirs.logstash.pipeline}}"
+      - "{{app.dirs.data}}"
+      - "{{app.dirs.config}}"
+      - "{{app.dirs.config}}"
+      - "{{app.dirs.config}}"
+      - "{{app.dirs.pipeline}}"
 
 
 - name: Create a network

@@ -1,0 +1,8 @@
+---
+- hosts: logstash
+  become: True
+  roles:
+    - common
+    - docker
+    - elk
+...
