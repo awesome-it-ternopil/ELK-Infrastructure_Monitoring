@@ -5,18 +5,4 @@
     - common
     - docker
     - elk
-
-- hosts: logstash
-  become: True
-  roles:
-#    - common
-#    - docker
-    - elk
-
-- hosts: kibana
-  become: True
-  roles:
-#    - common
-#    - docker
-    - elk
 ...
