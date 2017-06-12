@@ -1,15 +1,30 @@
 ---
-logstash:
-  container_name: 'logstash'
-#  version: '5.4.1'
+app:
+  version: '5.4.1'
   image_name: "docker.elastic.co/logstash/logstash:5.4.1"
-  port1: 5000
-  root_user: '???'
-
-docker:
-  network_name: 'elk'
-  ips:
-    subnet: '172.18.1.0/24'
-    gateway: '172.18.1.254'
-    ip: '172.18.1.20'
+  user: "{{ansible_user}}"
+  group: "{{ansible_user}}"
+  containers:
+    name: 'logstash'
+    volumes:
+      - "/opt/cluster/elasticsearch/config/:/usr/share/logstash/config/"
+      - "/opt/cluster/logstash/pipeline/:/usr/share/logstash/pipeline/"
+      - "/opt/cluster/logstash/:/etc/ssh-map.json"
+    network:
+      name: 'elk'
+      subnet: '172.18.1.0/24'
+      gateway: '172.18.1.254'
+      ip: '172.18.1.20'
+      ports:
+        - 5000
+#    env:
+#          - "ES_JAVA_OPTS: -Xmx256m -Xms256m"
+  dirs:
+    parent: '/opt/cluster/logstash'
+    config: '/opt/cluster/logstash/config'
+    pipeline: '/opt/cluster/logstash/pipeline'
+templates:
+  - {template: "logstash.yml.j2", dest: "/opt/cluster/elasticsearch/config/logstash.yml"}
+  - {template: "logstash.conf.j2", dest: "/opt/cluster/logstash/pipeline/logstash.conf"}
+  - {template: "ssh-map.json.j2", dest: "/opt/cluster/logstash/ssh-map.json"}
 ...

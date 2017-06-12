@@ -1,17 +1,25 @@
 ---
-elastic:
-  container_name: 'elastic'
+app:
   version: '5.4.1'
-#  image_name: "elastic:5.4.1"
   image_name: "docker.elastic.co/elasticsearch/elasticsearch:5.4.1"
-  port1: 9200
-  port2: 9300
-  root_user: '???'
+  user: "{{ansible_user}}"
+  group: "{{ansible_user}}"
+  containers:
+    name: 'elastic'
+    volumes:
+      - "/opt/cluster/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+    network:
+      name: 'elk'
+      subnet: '172.18.1.0/24'
+      gateway: '172.18.1.254'
+      ip: '172.18.1.10'
+      ports:
+        - 9200
+        - 9300
+  dirs:
+    parent: '/opt/cluster/elasticsearch'
+    config: '/opt/cluster/elasticsearch/config'
+templates:
+  - {template: "elasticsearch.yml.j2", dest: "/opt/cluster/elasticsearch/config/elasticsearch.yml"}
 
-docker:
-  network_name: 'elk'
-  ips:
-    subnet: '172.18.1.0/24'
-    gateway: '172.18.1.254'
-    ip: '172.18.1.10'
 ...
