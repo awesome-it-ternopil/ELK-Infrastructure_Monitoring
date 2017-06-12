@@ -5,12 +5,16 @@ import time
 import json
 import socket
 import yaml
+import argparse
+import logging
+import sys
+import signal
 
-kafka_config = {'broker_url': '192.168.37.10:9092', 'topic': 'test_log'}
-log_names = ['systema.log', 'test.log']
-start_seek = 0
-config_path = 'config.yaml'
-
+logger = logging.getLogger('Log_agent')
+parser=argparse.ArgumentParser(description='Script for reading log files and save it to Kafka')
+system_parser=parser.add_argument_group('system')
+system_parser.add_argument('-config_file', help='Configuring application config file', default='config.yaml')
+cli_args_result=vars(parser.parse_args())
 
 class ConfiguratorActor(object):
     default_params = {'kafka': {'topic': 'test_log', 'broker_url': '192.168.37.10:9092'}, 'log': {'paths': []},
@@ -83,6 +87,7 @@ class KafkaActor(object):
         self.kafka_config = {'broker_url': '127.0.0.1:9092', 'topic': 'test_log', 'key': None, 'partition': 0}
         self.update_kafka_config(kwargs)
         self.kafka_prod = kafka.KafkaProducer(bootstrap_servers=self.kafka_config['broker_url'])
+        self.write_stat=0
 
     def update_kafka_config(self, user_configs):
         for key in user_configs:
@@ -96,12 +101,26 @@ class KafkaActor(object):
         if partition is None:
             partition = self.kafka_config['partition']
         self.kafka_prod.send(topic, message, key=key, partition=int(partition))
-
-
-conf = ConfiguratorActor()
+        self.write_stat+=1
+logger.info("Starting agent")
+print '[DEBUG] Starting agent'
+conf = ConfiguratorActor(config_file=cli_args_result['config_file'])
+print "[INFO] Currnet config: \n %s" % json.dumps(conf.read_config())
 input_logs = LogImporter(conf.log['paths'], positions_filename=conf.system['position_filename'])
 kaf = KafkaActor(**conf.kafka)
 play = True
+pid_file = file(conf.system['pid_file'], 'w+')
+pid_file.write(str(os.getpid()))
+pid_file.close()
+
+def signal_handler(signal, frame):
+    input_logs.write_position_file()
+    input_logs.close_files()
+    os.remove(conf.system['pid_file'])
+    logger.info('Agent said Bye-bye!')
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 try:
     while play:
@@ -109,16 +128,20 @@ try:
         read_result = input_logs.read_files()
         for file_name in read_result:
             if len(read_result[file_name]) > 0:
-                print "[DEBUG] Changing topic to %s" % socket.gethostname().lower()
-                kaf.kafka_config['topic'] = socket.gethostname()
-                print "[DEBUG] Adding key %s" % file_name
+                kaf.kafka_config['topic'] = socket.gethostname().lower()
+                logger.debug('Changed topic to %s' % socket.gethostname().lower())
                 kaf.kafka_config['key'] = file_name
-                print "[DEBUG] Setting partition %s" % input_logs.log_files_names.index(file_name)
+                logger.debug('Adding key %s' % file_name)
                 kaf.kafka_config['partition'] = input_logs.log_files_names.index(file_name)
+                logger.debug("Changed partition %s" % input_logs.log_files_names.index(file_name))
                 map(kaf.write, read_result[file_name])
+        if int(time.time()/100) % 5 == 0:
+            logger.debug('Witting statistic: %s Current position: %s ' %(kaf.write_stat, input_logs.get_read_positions()))
         time.sleep(conf.system['sleep_time'])
 except KeyboardInterrupt:
     print json.dumps(input_logs.get_read_positions())
 finally:
     input_logs.write_position_file()
     input_logs.close_files()
+    os.remove(conf.system['pid_file'])
+    logger.info('Agent said Bye-bye!')

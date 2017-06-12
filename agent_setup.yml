@@ -1,0 +1,7 @@
+---
+- hosts: log_agent
+  become: True
+  roles:
+    - common
+    - log_agent
+...

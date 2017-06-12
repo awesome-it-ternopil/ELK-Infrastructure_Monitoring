@@ -1,2 +1,7 @@
 ---
+- name: restart_log_agent
+  become: True
+  service: >
+        name={{app.name}}
+        state=restarted
 ...

@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#!/bin/bash
+# Application start/stop script
+#
+# chkconfig: 2345 92 01
+# description:	{{app.name}}
+
+# Source function library.
+#. /etc/init.d/functions
+
+start() {
+	if [ -f {{app.dirs.home}}/RUNNING_PID ]
+	then
+	    kill -SIGINT `cat {{app.dirs.home}}/RUNNING_PID`
+	    sleep 15
+	fi
+	sleep 5
+	chmod ugo+x {{app.dirs.home}}/{{app.name}}.py
+	cd {{app.dirs.home}}/
+	echo "Starting {{app.name}}: "
+    ./{{app.name}}.py -config_file={{app.dirs.etc}}/config.yaml \
+      &> {{app.dirs.logs}}/{{app.name}}_system.log &
+    echo "OK"
+	return 0
+}
+
+stop() {
+    sleep 5
+	if [ -f {{app.dirs.home}}/RUNNING_PID ]
+	then
+	    kill -SIGINT `cat {{app.dirs.home}}/RUNNING_PID`
+	fi
+	return 0
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  *)
+	echo $"Usage: $0 {start|stop}"
+	exit 2
+esac
