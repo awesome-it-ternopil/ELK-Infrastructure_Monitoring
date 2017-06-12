@@ -8,6 +8,9 @@ dev-logs-kafka-01   ansible_host=192.168.37.10
 dev-logs-elk-01   ansible_host=192.168.37.20
 [kibana]
 dev-logs-elk-01   ansible_host=192.168.37.20
+[log_agent]
+dev-logs-agent-01   ansible_host=192.168.37.10
+
 ##################################
 #             VARS               #
 ##################################
@@ -26,6 +29,7 @@ ansible_ssh_private_key_file= '~/.vagrant.d/insecure_private_key'
 backend
 database
 frontend
+log_agent
 
 
     [backend:children]

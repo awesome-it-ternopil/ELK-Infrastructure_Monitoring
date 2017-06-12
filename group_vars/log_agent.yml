@@ -1,0 +1,19 @@
+---
+project_name: 'log_agent'
+app:
+  name: "{{project_name}}"
+  user: "{{ansible_user}}"
+  group: "{{ansible_user}}"
+  dirs:
+    home: "/opt/cluster/{{project_name}}/app"
+    logs: "/opt/cluster/{{project_name}}/logs"
+    etc: "/opt/cluster/{{project_name}}/etc"
+    init_d: "/opt/cluster/{{project_name}}/init_d"
+templates:
+  - {template: 'config.yaml.j2', dest: "{{app.dirs.etc}}/config.yaml"}
+  - {template: "{{app.name}}.j2", dest: "{{app.dirs.init_d}}/{{app.name}}"}
+
+tracking_log_files:
+  - "/var/log/secure"
+  - "/var/log/audit/audit.log"
+...

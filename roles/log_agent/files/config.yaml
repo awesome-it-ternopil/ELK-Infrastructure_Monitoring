@@ -1,7 +1,7 @@
 ---
 system:
   sleep_time: 1
-  pid_file: "PIDFILE"
+  pid_file: "RUNNING_PID"
   position_filename: "logs_positions.tmp"
 
 kafka:
