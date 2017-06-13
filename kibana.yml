@@ -4,5 +4,5 @@
   roles:
     - common
     - docker
-    - elk
+    - {role: 'elk', tags: [kibana_setup]}
 ...

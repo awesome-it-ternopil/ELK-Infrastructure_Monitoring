@@ -1,25 +1,25 @@
 ---
+- name: Debug
+  debug: var=group_names
+
 - name: Creating directories
   become: True
   file: >
-      path="{{item}}"
+      path={{app.dirs[item]}}
       state=directory
-      owner="{{app.user}}"
-      group="{{app.group}}"
+      owner={{app.user}}
+      group={{app.group}}
       mode="u+rwx,g+rwx"
       recurse=yes
-  with_items:
-      - "{{app.dirs.config}}"
-      - "{{app.dirs.parent}}"
-
+  with_items: "{{app.dirs}}"
 
 - name: Create a network
   become: True
   docker_network:
-    name: "{{ app.containers.network.name }}"
+    name: '{{app.containers.network.name}}'
     ipam_options:
-      subnet: "{{ app.containers.network.subnet }}"
-      gateway: "{{ app.containers.network.gateway }}"
+      subnet: '{{app.containers.network.subnet}}'
+      gateway: '{{app.containers.network.gateway}}'
 
 - name: Change config files.
   become: True
@@ -30,6 +30,8 @@
     group: "{{ app.group }}"
     mode: 0644
   with_items: "{{ templates }}"
+  tags:
+    - update_configs
 
 - name: Starting containers.
   become: True
@@ -39,53 +41,11 @@
     state: "started"
     restart_policy: 'always'
     recreate: yes
-    volumes: "{{ item[0] }}"
-    env: "{{ item[1] }}"
+    volumes: "{{ app.containers.volumes }}"
     networks:
       - name: "{{ app.containers.network.name }}"
         ipv4_address: "{{ app.containers.network.ip }}"
-    published_ports: "{{ item[2] }}"
-  with_nested:
-    - "{{ app.container.volumes }}"
-    - "{{ app.container.env }}"
-    - "{{ app.container.network.ports }}"
+    published_ports: "{{ app.containers.network.ports }}"
+    env: "{{ app.containers.env }}"
 
-#    image: "{{elastic.image_name}}:{{elastic.version}}"
-#    tags:
-#      - pg_config
-#  when: "db_platform[region_name] == 'docker'"
-
-#- name: Start a container
-#  docker_container:
-#    name: elasticsearch
-#    image: elasticsearch/
-#    state: started
-#    ports:
-#     - "9200:9200"
-#     - "9300:9300"
-#    volumes:
-#    env:
-#         ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-#    networks: # List of networks the container belongs to.
-#          - name: elk
-#            ipv4_address: "172.1.1.100"
-#           - 6379????
-#     exposed_ports:
-#            aliases:
-#              - sleepyzz
-#            links:  (List of name aliases for linked containers in the format container_name:alias)
-#              - db_test:db
-#            log_driver: syslog
-#                log_options:
-#                  syslog-address: tcp://my-syslog-server:514
-#                  syslog-facility: daemon
-#                  # NOTE: in Docker 1.13+ the "syslog-tag" option was renamed to "tag" for
-#                  # older docker installs, use "syslog-tag" instead
-#                  tag: myservice
-
-
-#    restart: yes
-#    links:
-#     - "myredis:aliasedredis"
-#    devices:
-#     - "/dev/sda:/dev/xvda:rwm"
+...

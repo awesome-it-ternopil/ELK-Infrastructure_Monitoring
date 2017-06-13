@@ -6,6 +6,8 @@ app:
   group: "{{ansible_user}}"
   containers:
     name: 'logstash'
+    env:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - "/opt/cluster/elasticsearch/config/:/usr/share/logstash/config/"
       - "/opt/cluster/logstash/pipeline/:/usr/share/logstash/pipeline/"
@@ -16,9 +18,7 @@ app:
       gateway: '172.18.1.254'
       ip: '172.18.1.20'
       ports:
-        - 5000
-#    env:
-#          - "ES_JAVA_OPTS: -Xmx256m -Xms256m"
+        - "5000:5000"
   dirs:
     parent: '/opt/cluster/logstash'
     config: '/opt/cluster/logstash/config'

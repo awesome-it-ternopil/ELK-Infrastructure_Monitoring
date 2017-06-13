@@ -6,6 +6,8 @@ app:
   group: "{{ansible_user}}"
   containers:
     name: 'elastic'
+    env:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
       - "/opt/cluster/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
     network:
@@ -14,12 +16,11 @@ app:
       gateway: '172.18.1.254'
       ip: '172.18.1.10'
       ports:
-        - 9200
-        - 9300
+        - "9200:9200"
+        - "9300:9300"
   dirs:
     parent: '/opt/cluster/elasticsearch'
     config: '/opt/cluster/elasticsearch/config'
 templates:
   - {template: "elasticsearch.yml.j2", dest: "/opt/cluster/elasticsearch/config/elasticsearch.yml"}
-
 ...

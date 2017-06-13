@@ -1,5 +1,3 @@
 ---
-elk:
-  user: "{{ansible_ssh_user}}"
-  group: "{{ansible_ssh_user}}"
+
 ...

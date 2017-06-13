@@ -1,22 +1,6 @@
 ---
-- hosts: elasticsearch
-  become: True
-  roles:
-    - common
-    - docker
-    - elk
-
-- hosts: logstash
-  become: True
-  roles:
-#    - cogitmmon
-#    - docker
-    - elk
-
-- hosts: kibana
-  become: True
-  roles:
-#    - common
-#    - docker
-    - elk
+#- include: docker_config.yml
+- include: elastic.yml
+- include: kibana.yml
+- include: logstash.yml
 ...

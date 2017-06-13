@@ -16,4 +16,5 @@ templates:
 tracking_log_files:
   - "/var/log/secure"
   - "/var/log/audit/audit.log"
+  - ""
 ...

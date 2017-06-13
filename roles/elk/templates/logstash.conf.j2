@@ -3,34 +3,65 @@ input {
                 port => 5000
                 type => "security"
         }
+        kafka {
+                bootstrap_servers => "192.168.37.10:9092"
+                topics => ["dev-logs-agent-01"]
+            }
 }
 
 ## Add your filters / logstash plugins configuration here
 
-filter {
-  grok {
-    match => ["message", "Failed password for (invalid user |)%{USERNAME:username} from %{IP:src_ip} port %{BASE10NUM:port} ssh2"]
-    add_tag => "ssh_brute_force_attack"
-  }
-  grok {
-    match => ["message", "Accepted password for %{USERNAME:username} from %{IP:src_ip} port %{BASE10NUM:port} ssh2"]
-    add_tag => "ssh_sucessful_login"
-  }
-  geoip {
-    source => "src_ip"
-  }
-}
+#filter {
+#  grok {
+#    match => ["message", "Failed password for (invalid user |)%{USERNAME:username} from %{IP:src_ip} port %{BASE10NUM:port} ssh2"]
+#    add_tag => "ssh_brute_force_attack"
+#  }
+#  grok {
+#    match => ["message", "Accepted password for %{USERNAME:username} from %{IP:src_ip} port %{BASE10NUM:port} ssh2"]
+#    add_tag => "ssh_sucessful_login"
+#  }
+#  geoip {
+#    source => "src_ip"
+#  }
+#  grok {
+#      pattern => [ "type=%{DATA:audit_type}\smsg=audit\(%{NUMBER:audit_epoch}:%{NUMBER:audit_counter}\):.*?( msg=\'(?<sub_msg>.*?)\')?$" ]
+#      named_captures_only => true
+#    }
+#    kv {
+#      exclude_keys => [ "msg", "type" ]
+#    }
+#    kv {
+#      source => "sub_msg"
+#    }
+#    date {
+#      match => [ "audit_epoch", "UNIX" ]
+#    }
+#    mutate {
+#      rename => [
+#        "auid", "uid_audit",
+#        "fsuid", "uid_fs",
+#        "suid", "uid_set",
+#        "ses", "session_id"
+#      ]
+#      remove_field => ['sub_msg', 'audit_epoch']
+#    }
+
+#}
 output {
-   if "ssh_brute_force_attack" in [tags] {
-         elasticsearch {
-                hosts => "172.18.1.10.:9200"
-#                hosts => "elasticsearch:9200"
-                #hosts => ["x.x.x.x:9200"]
-                index => "logstash-%{+YYYY.MM.dd}"
-                manage_template => true
-                template_name => "ssh"
-                template => "/etc/ssh-map.json"
-                template_overwrite => true
-         }
-   }
+#   if "ssh_brute_force_attack" in [tags] {
+#         elasticsearch {
+#                hosts => "172.18.1.10:9200"
+##                hosts => "elasticsearch:9200"
+#                #hosts => ["x.x.x.x:9200"]
+#                index => "logstash-%{+YYYY.MM.dd}"
+#                manage_template => true
+#                template_name => "ssh"
+#                template => "/etc/ssh-map.json"
+#                template_overwrite => true
+#         }
+#   }
+   elasticsearch {
+           hosts => ["172.18.1.10:9200"]
+           index => "example-index"
+       }
 }
