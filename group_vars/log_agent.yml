@@ -14,7 +14,6 @@ templates:
   - {template: "{{app.name}}.j2", dest: "{{app.dirs.init_d}}/{{app.name}}"}
 
 tracking_log_files:
+  - "/var/log/nginx/access.log"
   - "/var/log/secure"
-  - "/var/log/audit/audit.log"
-  - ""
 ...

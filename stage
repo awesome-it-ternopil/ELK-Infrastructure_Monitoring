@@ -1,0 +1,58 @@
+[kafka]
+ows-ds-kafka-01   ansible_host=86.111.189.10
+
+[kibana]
+dev-logs-kibana-01   ansible_host=192.168.37.20
+
+[elasticsearch]
+dev-logs-elastic-01   ansible_host=192.168.37.20
+
+[logstash]
+dev-logs-logstash-01   ansible_host=192.168.37.20
+
+[log_agent]
+ows-ds-app-01 ansible_host=86.111.189.11
+
+##################################
+#             VARS               #
+##################################
+
+[region:vars]
+region_name=stage
+ansible_user=vagrant
+ansible_ssh_port= 22
+ansible_connection= ssh
+ansible_ssh_private_key_file= '~/.vagrant.d/insecure_private_key'
+
+[log_agent:vars]
+ansible_user=centos
+ansible_ssh_port= 222
+ansible_ssh_user=centos
+ansible_ssh_private_key_file= '~/.ssh/ssh-key/scalHive/openstack/devops_key'
+
+[kafka:vars]
+ansible_user=centos
+ansible_ssh_user=centos
+ansible_ssh_private_key_file= '~/.ssh/ssh-key/scalHive/openstack/devops_key'
+
+##################################
+##          childhood           ##
+##################################
+
+[region:children]
+frontend
+backend
+database
+log_agent
+
+    [frontend:children]
+    kibana
+
+    [backend:children]
+    logstash
+
+    [database:children]
+    kafka
+    elasticsearch
+
+

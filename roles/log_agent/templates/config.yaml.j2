@@ -5,7 +5,7 @@ system:
   position_filename: "{{app.dirs.home}}/logs_positions.tmp"
 
 kafka:
-  broker_url: '192.168.37.10:9092'
+  broker_url: "{{hostvars[groups['kafka'][0]]['ansible_host']}}:9092"
 
 log:
   paths:
