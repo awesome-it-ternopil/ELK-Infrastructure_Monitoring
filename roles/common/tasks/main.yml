@@ -3,6 +3,16 @@
   hostname: name={{inventory_hostname}}
   when: ansible_nodename not in groups['region']
 
+- name: Unsetting env variables
+  become: True
+  lineinfile: >
+        line='{{item}}'
+        dest=/etc/bashrc
+        state=present
+        create=yes
+  with_items:
+    - 'unset PROMPT_COMMAND'
+
 - name: Add hostname to /etc/hosts
   become: True
   lineinfile: dest='/etc/hosts' line='127.0.0.1   {{inventory_hostname}}'
